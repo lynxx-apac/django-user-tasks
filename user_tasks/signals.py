@@ -10,6 +10,7 @@ from celery.signals import before_task_publish, task_failure, task_prerun, task_
 from django.contrib.auth import get_user_model
 from django.db import close_old_connections, transaction
 from django.utils.module_loading import import_string
+from docutils.nodes import status
 
 from user_tasks import user_task_stopped
 
@@ -32,6 +33,22 @@ def create_user_task(sender=None, body=None, **kwargs):
         task_class = import_string(sender)
     except ImportError:
         return
+    if 'task' in kwargs['headers']:
+        body = {
+            'task': kwargs['headers']['task'],
+            'id': kwargs['headers']['id'],
+            'args': body[0],
+            'kwargs': body[1],
+            'retries': kwargs['headers']['retries'],
+            'eta': kwargs['headers']['eta'],
+            'expires': kwargs['headers']['expires'],
+            'task_set': kwargs['headers']['group'],
+            'chord': body[2]['chord'],
+            # cannot find utc field
+            'callbacks': body[2]['callbacks'],
+            'errbacks': body[2]['errbacks'],
+            'timelimit': kwargs['headers']['timelimit'],
+        }
     if issubclass(task_class.__class__, UserTaskMixin):
         arguments_dict = task_class.arguments_as_dict(*body['args'], **body['kwargs'])
         user_id = _get_user_id(arguments_dict)
