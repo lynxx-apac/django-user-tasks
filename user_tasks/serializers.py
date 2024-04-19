@@ -20,7 +20,7 @@ class ArtifactSerializer(serializers.ModelSerializer):
         """
 
         model = UserTaskArtifact
-        fields = ('name', 'created', 'modified', 'status', 'file', 'text', 'url')
+        fields = ('id', 'name', 'created', 'modified', 'status', 'file', 'text', 'url')
 
     def get_file(self, obj):
         """
@@ -52,7 +52,7 @@ class StatusSerializer(serializers.ModelSerializer):
 
         model = UserTaskStatus
         fields = (
-            'name', 'state', 'state_text', 'completed_steps', 'total_steps', 'attempts', 'created', 'modified',
+            'id', 'name', 'state', 'state_text', 'completed_steps', 'total_steps', 'attempts', 'created', 'modified',
             'artifacts'
         )
 
