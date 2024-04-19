@@ -7,27 +7,7 @@ from rest_framework import serializers
 from .models import UserTaskArtifact, UserTaskStatus
 
 
-class StatusSerializer(serializers.HyperlinkedModelSerializer):
-    """
-    REST API serializer for the UserTaskStatus model.
-    """
-
-    artifacts = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name='usertaskartifact-detail',
-                                                    lookup_field='uuid')
-
-    class Meta:
-        """
-        Status serializer settings.
-        """
-
-        model = UserTaskStatus
-        fields = (
-            'name', 'state', 'state_text', 'completed_steps', 'total_steps', 'attempts', 'created', 'modified',
-            'artifacts'
-        )
-
-
-class ArtifactSerializer(serializers.HyperlinkedModelSerializer):
+class ArtifactSerializer(serializers.ModelSerializer):
     """
     REST API serializer for the UserTaskArtifact model.
     """
@@ -41,9 +21,6 @@ class ArtifactSerializer(serializers.HyperlinkedModelSerializer):
 
         model = UserTaskArtifact
         fields = ('name', 'created', 'modified', 'status', 'file', 'text', 'url')
-        extra_kwargs = {
-            'status': {'lookup_field': 'uuid'},
-        }
 
     def get_file(self, obj):
         """
@@ -59,3 +36,23 @@ class ArtifactSerializer(serializers.HyperlinkedModelSerializer):
         if not obj.file:
             return ''
         return obj.file.url
+
+
+class StatusSerializer(serializers.ModelSerializer):
+    """
+    REST API serializer for the UserTaskStatus model.
+    """
+
+    artifacts = ArtifactSerializer(many=True, read_only=True)
+
+    class Meta:
+        """
+        Status serializer settings.
+        """
+
+        model = UserTaskStatus
+        fields = (
+            'name', 'state', 'state_text', 'completed_steps', 'total_steps', 'attempts', 'created', 'modified',
+            'artifacts'
+        )
+

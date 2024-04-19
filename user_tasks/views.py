@@ -49,7 +49,6 @@ class StatusViewSet(
     """
 
     filter_backends = settings.USER_TASKS_STATUS_FILTERS
-    lookup_field = 'uuid'
     permission_classes = (DjangoObjectPermissionsIncludingView,)
     queryset = UserTaskStatus.objects.order_by('-created')
     serializer_class = StatusSerializer
@@ -81,7 +80,6 @@ class ArtifactViewSet(viewsets.ReadOnlyModelViewSet):
     """
 
     filter_backends = settings.USER_TASKS_ARTIFACT_FILTERS
-    lookup_field = 'uuid'
     permission_classes = (DjangoObjectPermissionsIncludingView,)
     queryset = UserTaskArtifact.objects.all()
     serializer_class = ArtifactSerializer
