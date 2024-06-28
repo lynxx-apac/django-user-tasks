@@ -1,6 +1,7 @@
 """
 REST API endpoints.
 """
+from pathlib import Path
 
 from rest_framework import mixins, permissions, viewsets
 from rest_framework.decorators import action
@@ -69,6 +70,16 @@ class StatusViewSet(
         status.cancel()
         serializer = StatusSerializer(status, context={'request': request})
         return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        for artifact in instance.artifacts.all():
+            try:
+                bundle_path = Path(artifact.file.path)
+                bundle_path.unlink()
+            except (ValueError, FileNotFoundError, NotADirectoryError):
+                continue
+        return super().destroy(request, *args, **kwargs)
 
 
 class ArtifactViewSet(viewsets.ReadOnlyModelViewSet):
