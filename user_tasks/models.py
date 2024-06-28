@@ -3,6 +3,7 @@ Database models for user_tasks.
 """
 
 import logging
+from pathlib import Path
 from uuid import uuid4
 
 from celery import current_app
@@ -23,6 +24,7 @@ from .conf import settings
 from .exceptions import TaskCanceledException
 
 LOGGER = logging.getLogger(__name__)
+
 
 # The pylint "disable=no-member" comments are needed because of the 'self' argument to the parent field definition.
 # See https://github.com/landscapeio/pylint-django/issues/35 for more details
@@ -223,6 +225,10 @@ class UserTaskStatus(TimeStampedModel):
         return f'<UserTaskStatus: {self.name}>'
 
 
+def file_path_by_user(instance, filename):
+    return f'{django_settings.MEDIA_ROOT}/{instance.uuid}/{filename}'
+
+
 class UserTaskArtifact(TimeStampedModel):
     """
     An artifact (or error message) generated for a user by an asynchronous task.
@@ -235,7 +241,7 @@ class UserTaskArtifact(TimeStampedModel):
     name = models.CharField(max_length=255, default='Output',
                             help_text='Distinguishes between multiple artifact types for the same task')
     file = models.FileField(null=True, blank=True, storage=settings.USER_TASKS_ARTIFACT_STORAGE,
-                            upload_to='user_tasks/%Y/%m/%d/')
+                            upload_to=file_path_by_user)
     url = models.TextField(blank=True, validators=[URLValidator()])
     text = models.TextField(blank=True)
 
@@ -252,3 +258,11 @@ class UserTaskArtifact(TimeStampedModel):
         else:
             content = self.text
         return f'<UserTaskArtifact: ({self.name}) {content}>'
+
+    def delete(self, using=None, keep_parents=False):
+        try:
+            bundle_path = Path(self.file.path)
+            bundle_path.unlink()
+        except (ValueError, FileNotFoundError, NotADirectoryError):
+            pass
+        super().delete(using, keep_parents)
