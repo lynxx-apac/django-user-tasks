@@ -226,7 +226,7 @@ class UserTaskStatus(TimeStampedModel):
 
 
 def file_path_by_user(instance, filename):
-    return f'{django_settings.MEDIA_ROOT}/{instance.user_task_status.user.id}/{filename}'
+    return f'{instance.status.user.id}/{filename}'
 
 
 class UserTaskArtifact(TimeStampedModel):
