@@ -3,9 +3,8 @@ Custom Django settings for django-user-tasks.
 """
 
 from datetime import timedelta
-
-from django.conf import settings as django_settings
-from django.core.files.storage import get_storage_class
+from django.conf import settings as django_settings, DEFAULT_STORAGE_ALIAS
+from django.core.files.storage import storages
 
 from user_tasks import filters
 
@@ -36,8 +35,8 @@ class LazySettings():
         If explicitly set, the setting should be the import path of a storage
         backend class.
         """
-        import_path = getattr(django_settings, 'USER_TASKS_ARTIFACT_STORAGE', None)
-        return get_storage_class(import_path)()
+        storage_alias = getattr(django_settings, 'USER_TASKS_ARTIFACT_ALIAS', DEFAULT_STORAGE_ALIAS)
+        return storages[storage_alias]
 
     @property
     def USER_TASKS_MAX_AGE(self):  # pylint: disable=invalid-name
