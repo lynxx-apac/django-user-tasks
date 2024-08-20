@@ -50,7 +50,7 @@ class StatusViewSet(
     """
 
     filter_backends = settings.USER_TASKS_STATUS_FILTERS
-    permission_classes = (DjangoObjectPermissionsIncludingView,)
+    permission_classes = ([])
     queryset = UserTaskStatus.objects.order_by('-created')
     serializer_class = StatusSerializer
 
