@@ -10,6 +10,9 @@ from rest_framework.response import Response
 from .conf import settings
 from .models import UserTaskArtifact, UserTaskStatus
 from .serializers import ArtifactSerializer, StatusSerializer
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class DjangoObjectPermissionsIncludingView(permissions.DjangoObjectPermissions):
@@ -37,10 +40,10 @@ class DjangoObjectPermissionsIncludingView(permissions.DjangoObjectPermissions):
 
 
 class StatusViewSet(
-        mixins.DestroyModelMixin,
-        mixins.ListModelMixin,
-        mixins.RetrieveModelMixin,
-        viewsets.GenericViewSet
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet
 ):
     """
     REST API endpoints for user-triggered asynchronous tasks.
@@ -77,8 +80,8 @@ class StatusViewSet(
             try:
                 bundle_path = Path(artifact.file.path)
                 bundle_path.unlink()
-            except (ValueError, FileNotFoundError, NotADirectoryError):
-                continue
+            except (ValueError, FileNotFoundError, NotADirectoryError, NotImplementedError) as e:
+                logger.warning(f'Could not delete artifact {artifact.file.path} : {e}', exc_info=True)
         return super().destroy(request, *args, **kwargs)
 
 
