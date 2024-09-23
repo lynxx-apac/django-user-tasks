@@ -82,6 +82,7 @@ class StatusViewSet(
                 bundle_path.unlink()
             except (ValueError, FileNotFoundError, NotADirectoryError, NotImplementedError) as e:
                 logger.warning(f'Could not delete artifact {artifact.file} : {e}', exc_info=True)
+                continue
         return super().destroy(request, *args, **kwargs)
 
 
